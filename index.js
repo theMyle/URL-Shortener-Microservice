@@ -28,20 +28,27 @@ app.post('/api/shorturl', (req, res) => {
   // check if url is valid
   try {
     let hostname = new URL(url).hostname;
-    dns.lookup(hostname, (err, address, family) => {
-      // store into a dictionary
-      links[counter] = url;               
-
-      // return json response
-      res.json({ original_url: url, 
-        short_url: counter });            
-
-      // increment counter for next one
-      counter++;                          
-    });
   } catch {
     res.json({error: 'invalid url'});
   }
+
+  dns.lookup(hostname, (err, address, family) => {
+    // check if hostname is valid
+    if (err) {
+      res.json({error: 'invalid url'});
+      return;
+    }
+
+    // store into a dictionary
+    links[counter] = url;               
+
+    // return json response
+    res.json({ original_url: url, 
+      short_url: counter });            
+
+    // increment counter for next one
+    counter++;                          
+  });
 });
 
 // Redirect to original url
